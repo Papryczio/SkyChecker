@@ -7,18 +7,10 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
-            pip install --no-cache-dir -r requirements.txt
+      - python/install-deps
       - run:
           name: "Execute Python Script"
-          command: |
-          . venv/bin/activate
-          python script.py
+          command: python script.py
           
 workflows:
   my-workflow:
