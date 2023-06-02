@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  build:
+  test_execution:
     docker:
       - image: circleci/python:3.9
     steps:
@@ -8,3 +8,7 @@ jobs:
       - run:
         name: Execute Python Script
         command: python script.py
+workflows:
+  my-workflow:
+    jobs:
+      - test_execution
