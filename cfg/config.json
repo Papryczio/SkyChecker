@@ -33,6 +33,35 @@
             "onlyDirectFlights": "True",
             "return": "True",
             "maxPrice": 350
+        },
+        "Flight_test_WMI_27544068": {
+            "originAirportIATA": "WMI",
+            "destinationAirportEntityID": "27544068",
+            "dateFrom": {
+                "year": 2023,
+                "month": 10,
+                "day": 3
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 10,
+                "day": 10
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 7
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 25
+            },
+            "daysMinimum": 7,
+            "daysMaximum": 20,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 700
         }
     }
 }
