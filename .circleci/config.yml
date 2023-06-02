@@ -11,7 +11,7 @@ jobs:
           pkg-manager: pip
       - run:
           name: "Execute Python Script"
-          command: python script.py
+          command: python src/script.py
           
 workflows:
   my-workflow:
