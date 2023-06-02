@@ -7,7 +7,7 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      -run:
+      - run:
           name: "Install dependencies"
           command: |
             python3 -m venv venv
