@@ -7,7 +7,8 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - python/install-deps
+      - python/install-packages:
+          pkg-manager: pip
       - run:
           name: "Execute Python Script"
           command: python script.py
