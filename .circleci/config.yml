@@ -1,12 +1,18 @@
 version: 2.1
+orbs:
+  python: circleci/python@2.1.1
+  
 jobs:
   test_execution:
-    docker:
-      - image: circleci/python:3.9
+    executor: python/default
     steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
       - run:
-        name: Execute Python Script
-        command: python script.py
+          name: Execute Python Script
+          command: python script.py
+          
 workflows:
   my-workflow:
     jobs:
