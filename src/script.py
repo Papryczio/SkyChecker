@@ -12,7 +12,7 @@ headers["Content-Type"] = "application/x-www-form-urlencoded"
 
 # Getting config file.
 CURRENT_DIR = os.getcwd()
-CONFIG_FILE_PATH = os.path.join(CURRENT_DIR, '..', 'cfg/config.json')
+CONFIG_FILE_PATH = os.path.join(CURRENT_DIR, 'cfg/config.json')
 config = ""
 with open(CONFIG_FILE_PATH) as file:
     config = json.load(file)
