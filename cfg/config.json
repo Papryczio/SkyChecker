@@ -1,0 +1,38 @@
+{
+    "SearchConfiguration": {
+        "market": "PL",
+        "locale": "pl-PL",
+        "currency": "PLN"
+    },
+    "FlightConfiguration": {
+        "Flight_test_WMI_MLA": {
+            "originAirportIATA": "WMI",
+            "destinationAirportIATA": "MLA",
+            "dateFrom": {
+                "year": 2023,
+                "month": 10,
+                "day": 3
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 10,
+                "day": 10
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 7
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 25
+            },
+            "daysMinimum": 7,
+            "daysMaximum": 20,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 350
+        }
+    }
+}
