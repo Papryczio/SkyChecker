@@ -3,11 +3,6 @@ from requests.structures import CaseInsensitiveDict
 import json
 from datetime import datetime, timedelta
 import os
-import logging
-
-# Setting up logger
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
 
 URL = "https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search"
 
@@ -30,12 +25,12 @@ class SearchConfiguration:
         self.currency = config.get("currency")
 
 searchConfig = SearchConfiguration(config["SearchConfiguration"])
-log.debug("\n========================================================")
-log.debug("                  JOB CONFIGURATION")
-log.debug(f"Market:     {searchConfig.market}")
-log.debug(f"Locale:     {searchConfig.locale}")
-log.debug(f"Currency:   {searchConfig.currency}")
-log.debug("========================================================\n")
+print("\n========================================================")
+print("                  JOB CONFIGURATION")
+print(f"Market:     {searchConfig.market}")
+print(f"Locale:     {searchConfig.locale}")
+print(f"Currency:   {searchConfig.currency}")
+print("========================================================\n")
 
 # Getting all configured flights configurations.
 class FlightDate:
@@ -65,21 +60,21 @@ for cfg in config["FlightConfiguration"]:
     print(f"Processing flight: {cfg}")
     flightConfig = FlightConfiguration(config["FlightConfiguration"].get(cfg))
 
-    log.debug("\n========================================================")
-    log.debug("                  FLIGHT CONFIGURATION")
-    log.debug(f"Origin Airport IATA:            {flightConfig.originAirportIATA}")
-    log.debug(f"Origin Airport EntityID:        {flightConfig.originAirportEntityID}")
-    log.debug(f"Destination Airport IATA:       {flightConfig.destinationAirportIATA}")
-    log.debug(f"Destination Airport EntityID:   {flightConfig.destinationAirportEntityID}")
-    log.debug(f"Date From:                      {flightConfig.dateFrom.year}-{flightConfig.dateFrom.month}-{flightConfig.dateFrom.day}")
-    log.debug(f"Date To:                        {flightConfig.dateTo.year}-{flightConfig.dateTo.month}-{flightConfig.dateTo.day}")
-    log.debug(f"Date From (Return):             {flightConfig.dateFromReturn.year}-{flightConfig.dateFromReturn.month}-{flightConfig.dateFromReturn.day}")
-    log.debug(f"Date To (Return):               {flightConfig.dateToReturn.year}-{flightConfig.dateToReturn.month}-{flightConfig.dateToReturn.day}")
-    log.debug(f"Minimum days:                   {flightConfig.daysMinimum}")
-    log.debug(f"Maximum days:                   {flightConfig.daysMaximum}")
-    log.debug(f"Direct flights only?:           {flightConfig.onlyDirectFlights}")
-    log.debug(f"Return flight?:                 {flightConfig.returnFlight}")
-    log.debug("========================================================\n")
+    print("\n========================================================")
+    print("                  FLIGHT CONFIGURATION")
+    print(f"Origin Airport IATA:            {flightConfig.originAirportIATA}")
+    print(f"Origin Airport EntityID:        {flightConfig.originAirportEntityID}")
+    print(f"Destination Airport IATA:       {flightConfig.destinationAirportIATA}")
+    print(f"Destination Airport EntityID:   {flightConfig.destinationAirportEntityID}")
+    print(f"Date From:                      {flightConfig.dateFrom.year}-{flightConfig.dateFrom.month}-{flightConfig.dateFrom.day}")
+    print(f"Date To:                        {flightConfig.dateTo.year}-{flightConfig.dateTo.month}-{flightConfig.dateTo.day}")
+    print(f"Date From (Return):             {flightConfig.dateFromReturn.year}-{flightConfig.dateFromReturn.month}-{flightConfig.dateFromReturn.day}")
+    print(f"Date To (Return):               {flightConfig.dateToReturn.year}-{flightConfig.dateToReturn.month}-{flightConfig.dateToReturn.day}")
+    print(f"Minimum days:                   {flightConfig.daysMinimum}")
+    print(f"Maximum days:                   {flightConfig.daysMaximum}")
+    print(f"Direct flights only?:           {flightConfig.onlyDirectFlights}")
+    print(f"Return flight?:                 {flightConfig.returnFlight}")
+    print("========================================================\n")
 
     # Curl command parsing.
     def pasteAirports(query, isReturn):
@@ -163,8 +158,8 @@ for cfg in config["FlightConfiguration"]:
 
 
     if minPrice == 999999999:
-        log.info("No flights fitted given criteria.")
+        print("INFO: No flights fitted given criteria.")
     elif minPrice > flightConfig.maxPrice:
-        log.info(f"No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
+        print(f"INFO: No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
     else:
-        log.info(f"Flight fits the criteria, the price is {minPrice} {searchConfig.currency}")
+        print(f"INFO: Flight fits the criteria, the price is {minPrice}")
