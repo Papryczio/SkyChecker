@@ -33,12 +33,6 @@ class SearchConfiguration:
         self.currency = config.get("currency")
 
 searchConfig = SearchConfiguration(config["SearchConfiguration"])
-# print("\n========================================================")
-# print("                  JOB CONFIGURATION")
-# print(f"Market:     {searchConfig.market}")
-# print(f"Locale:     {searchConfig.locale}")
-# print(f"Currency:   {searchConfig.currency}")
-# print("========================================================\n")
 
 # Getting all configured flights configurations.
 class FlightDate:
@@ -69,15 +63,15 @@ class EmailNotificationParams:
         self.emailAddress = config.get("emailAddress")
         self.flightFrom = config.get("flightFrom")
         self.flightTo = config.get("flightTo")
-        self.otherInfo = config.get("otherInfo") or ""
+        self.otherInfo = config.get("otherInfo") or None
 
-def sendEmail(bestFittedFlight, flightConfig):
+def sendEmail(bestFittedFlight, flightConfig, searchConfig):
 
     emailParams = EmailNotificationParams(config["FlightConfiguration"].get(cfg)["emailNotification"])
 
     subject = f"[SkyChecker] Found best fitted flight from {emailParams.flightFrom} to {emailParams.flightTo}!"
 
-    body = f"The flight between {emailParams.flightFrom} and {emailParams.flightTo} can now be bought for just {minPrice}."
+    body = f"The flight between {emailParams.flightFrom} and {emailParams.flightTo} can now be bought for just {minPrice} {searchConfig.currency}."
     body += f"\nDeparture date: {bestFittedFlight['outboundLeg']['departureDateTime']['year']}-{bestFittedFlight['outboundLeg']['departureDateTime']['month']}-{bestFittedFlight['outboundLeg']['departureDateTime']['day']}"
     if flightConfig.returnFlight:
         body += f"\nReturn departure date: {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}"
@@ -85,6 +79,8 @@ def sendEmail(bestFittedFlight, flightConfig):
         body += f"\nThe flight(s) are direct."
     else:
         body += f"\nThe flight(s) are NOT direct!"
+    if emailParams.otherInfo is not None:
+        body += f"\n{emailParams.otherInfo}"
     body += "\n\nBR //BOT"
 
     em = EmailMessage()
@@ -101,22 +97,6 @@ for cfg in config["FlightConfiguration"]:
     print("\n========================================================")
     print(f"Processing flight: {cfg}")
     flightConfig = FlightConfiguration(config["FlightConfiguration"].get(cfg))
-
-    # print("\n========================================================")
-    # print("                  FLIGHT CONFIGURATION")
-    # print(f"Origin Airport IATA:            {flightConfig.originAirportIATA}")
-    # print(f"Origin Airport EntityID:        {flightConfig.originAirportEntityID}")
-    # print(f"Destination Airport IATA:       {flightConfig.destinationAirportIATA}")
-    # print(f"Destination Airport EntityID:   {flightConfig.destinationAirportEntityID}")
-    # print(f"Date From:                      {flightConfig.dateFrom.year}-{flightConfig.dateFrom.month}-{flightConfig.dateFrom.day}")
-    # print(f"Date To:                        {flightConfig.dateTo.year}-{flightConfig.dateTo.month}-{flightConfig.dateTo.day}")
-    # print(f"Date From (Return):             {flightConfig.dateFromReturn.year}-{flightConfig.dateFromReturn.month}-{flightConfig.dateFromReturn.day}")
-    # print(f"Date To (Return):               {flightConfig.dateToReturn.year}-{flightConfig.dateToReturn.month}-{flightConfig.dateToReturn.day}")
-    # print(f"Minimum days:                   {flightConfig.daysMinimum}")
-    # print(f"Maximum days:                   {flightConfig.daysMaximum}")
-    # print(f"Direct flights only?:           {flightConfig.onlyDirectFlights}")
-    # print(f"Return flight?:                 {flightConfig.returnFlight}")
-    # print("========================================================\n")
 
     # Curl command parsing.
     def pasteAirports(query, isReturn):
@@ -207,7 +187,7 @@ for cfg in config["FlightConfiguration"]:
         print(f"No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
     else:
         print(f"Flight fits the criteria, the price is {minPrice}")
-        sendEmail(bestFittedFlight, flightConfig)
+        sendEmail(bestFittedFlight, flightConfig, searchConfig)
     
     print(f"Is direct?:     {bestFittedFlight['isDirect']}")
     print(f"Departure from: {bestFittedFlight['outboundLeg']['originPlaceId']}")
