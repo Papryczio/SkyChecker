@@ -32,7 +32,13 @@
             "daysMaximum": 20,
             "onlyDirectFlights": "True",
             "return": "True",
-            "maxPrice": 350
+            "maxPrice": 350,
+            "emailNotification": {
+                "emailAddress": "patrix800@gmail.com",
+                "flightFrom": "Modlin",
+                "flightTo": "Malta",
+                "otherInfo": ""
+            }
         },
         "Flight_test_WMI_27544068": {
             "originAirportIATA": "WMI",
@@ -61,7 +67,13 @@
             "daysMaximum": 20,
             "onlyDirectFlights": "True",
             "return": "True",
-            "maxPrice": 700
+            "maxPrice": 700,
+            "emailNotification": {
+                "emailAddress": "patrix800@gmail.com",
+                "flightFrom": "Modlin",
+                "flightTo": "Mediolan",
+                "otherInfo": ""
+            }
         }
     }
 }
