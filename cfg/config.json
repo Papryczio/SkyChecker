@@ -40,38 +40,143 @@
                 "otherInfo": ""
             }
         },
-        "Flight_test_WMI_27544068": {
-            "originAirportIATA": "WMI",
-            "destinationAirportEntityID": "27544068",
+        "WAW-LIS_SEPTEMBER/OCTOBER": {
+            "originAirportIATA": "WAW",
+            "destinationAirportEntityID": "LIS",
             "dateFrom": {
                 "year": 2023,
-                "month": 10,
-                "day": 3
+                "month": 9,
+                "day": 1
             }, 
             "dateTo": {
                 "year": 2023,
                 "month": 10,
-                "day": 10
+                "day": 15
             },
             "dateFromReturn": {
                 "year": 2023,
-                "month": 10,
-                "day": 7
+                "month": 9,
+                "day": 5
             }, 
             "dateToReturn": {
                 "year": 2023,
                 "month": 10,
                 "day": 25
             },
-            "daysMinimum": 7,
-            "daysMaximum": 20,
+            "daysMinimum": 5,
+            "daysMaximum": 8,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 700,
+            "emailNotification": {
+                "emailAddress": "mp7@interia.eu",
+                "flightFrom": "Warszawa Chopin",
+                "flightTo": "Lisbon",
+                "otherInfo": ""
+            }
+        },
+        "WAW-LIS_SEPTEMBER/OCTOBER-patrix": {
+            "originAirportIATA": "WAW",
+            "destinationAirportEntityID": "LIS",
+            "dateFrom": {
+                "year": 2023,
+                "month": 9,
+                "day": 1
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 10,
+                "day": 15
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 9,
+                "day": 5
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 25
+            },
+            "daysMinimum": 5,
+            "daysMaximum": 8,
             "onlyDirectFlights": "True",
             "return": "True",
             "maxPrice": 700,
             "emailNotification": {
                 "emailAddress": "patrix800@gmail.com",
-                "flightFrom": "Modlin",
-                "flightTo": "Mediolan",
+                "flightFrom": "Warszawa Chopin",
+                "flightTo": "Lisbon",
+                "otherInfo": ""
+            }
+        },
+        "WMI-LIS_SEPTEMBER/OCTOBER": {
+            "originAirportIATA": "WMI",
+            "destinationAirportEntityID": "LIS",
+            "dateFrom": {
+                "year": 2023,
+                "month": 9,
+                "day": 1
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 10,
+                "day": 15
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 9,
+                "day": 5
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 25
+            },
+            "daysMinimum": 5,
+            "daysMaximum": 8,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 700,
+            "emailNotification": {
+                "emailAddress": "mp7@interia.eu",
+                "flightFrom": "Warszawa Modlin",
+                "flightTo": "Lisbon",
+                "otherInfo": ""
+            }
+        },
+        "WMI-LIS_SEPTEMBER/OCTOBER-patrix": {
+            "originAirportIATA": "WMI",
+            "destinationAirportEntityID": "LIS",
+            "dateFrom": {
+                "year": 2023,
+                "month": 9,
+                "day": 1
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 10,
+                "day": 15
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 9,
+                "day": 5
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 10,
+                "day": 25
+            },
+            "daysMinimum": 5,
+            "daysMaximum": 8,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 700,
+            "emailNotification": {
+                "emailAddress": "patrix800@gmail.com",
+                "flightFrom": "Warszawa Modlin",
+                "flightTo": "Lisbon",
                 "otherInfo": ""
             }
         }
