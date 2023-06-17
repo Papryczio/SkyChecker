@@ -139,63 +139,68 @@ for cfg in config["FlightConfiguration"]:
         query = pasteDate(query, True)
     query += ']}}'
 
-    # Executing CuRL.
-    resp = requests.post(URL, headers=headers, data=query)
-    flightsInfo = resp.json()['content']['results']['quotes']
+    print(query)
 
-    # Get best fitted flight
-    minPrice = 999999999
-    bestFittedFlight = ""
+    try:
+        # Executing CuRL.
+        resp = requests.post(URL, headers=headers, data=query)
+        flightsInfo = resp.json()['content']['results']['quotes']
 
-    for flightCode in flightsInfo:
-        flight = flightsInfo.get(flightCode)
+        # Get best fitted flight
+        minPrice = 999999999
+        bestFittedFlight = ""
 
-        # --- Check if flight matches user's criteria. ---
-        # Time delta between outbound and inbound
-        if flightConfig.returnFlight.lower() == "true":
-            date = str(flight['outboundLeg']['departureDateTime']['year']) + "-"
-            date += str(flight['outboundLeg']['departureDateTime']['month']) + "-"
-            date += str(flight['outboundLeg']['departureDateTime']['day'])
-            outboundDate = datetime.strptime(date, "%Y-%m-%d")
+        for flightCode in flightsInfo:
+            flight = flightsInfo.get(flightCode)
 
-            date = str(flight['inboundLeg']['departureDateTime']['year']) + "-"
-            date += str(flight['inboundLeg']['departureDateTime']['month']) + "-"
-            date += str(flight['inboundLeg']['departureDateTime']['day'])
-            inboundDate = datetime.strptime(date, "%Y-%m-%d")
+            # --- Check if flight matches user's criteria. ---
+            # Time delta between outbound and inbound
+            if flightConfig.returnFlight.lower() == "true":
+                date = str(flight['outboundLeg']['departureDateTime']['year']) + "-"
+                date += str(flight['outboundLeg']['departureDateTime']['month']) + "-"
+                date += str(flight['outboundLeg']['departureDateTime']['day'])
+                outboundDate = datetime.strptime(date, "%Y-%m-%d")
 
-            difference = inboundDate - outboundDate
-            minDays = timedelta(days=flightConfig.daysMinimum)
-            maxDays = timedelta(days=flightConfig.daysMaximum)
+                date = str(flight['inboundLeg']['departureDateTime']['year']) + "-"
+                date += str(flight['inboundLeg']['departureDateTime']['month']) + "-"
+                date += str(flight['inboundLeg']['departureDateTime']['day'])
+                inboundDate = datetime.strptime(date, "%Y-%m-%d")
 
-            if(difference < minDays or difference > maxDays):
+                difference = inboundDate - outboundDate
+                minDays = timedelta(days=flightConfig.daysMinimum)
+                maxDays = timedelta(days=flightConfig.daysMaximum)
+
+                if(difference < minDays or difference > maxDays):
+                    continue
+
+            # Check if the flight is direct or not.
+            if(str(flight['isDirect']).lower() != flightConfig.onlyDirectFlights.lower()):
                 continue
 
-        # Check if the flight is direct or not.
-        if(str(flight['isDirect']).lower() != flightConfig.onlyDirectFlights.lower()):
+            # --- Check if the flight is cheaper than the cheapest yet found. ---
+            if(int(flight['minPrice']['amount']) < minPrice):
+                bestFittedFlight = flight
+                minPrice = int(flight['minPrice']['amount'])
+                
+        if minPrice == 999999999:
+            print("No flights fitted given criteria.")
+            print("========================================================\n")
             continue
-
-        # --- Check if the flight is cheaper than the cheapest yet found. ---
-        if(int(flight['minPrice']['amount']) < minPrice):
-            bestFittedFlight = flight
-            minPrice = int(flight['minPrice']['amount'])
-            
-    if minPrice == 999999999:
-        print("No flights fitted given criteria.")
+        elif minPrice > flightConfig.maxPrice:
+            print(f"No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
+        else:
+            print(f"Flight fits the criteria, the price is {minPrice}")
+            sendEmail(bestFittedFlight, flightConfig, searchConfig)
+        
+        print(f"Is direct?:     {bestFittedFlight['isDirect']}")
+        print(f"Departure from: {bestFittedFlight['outboundLeg']['originPlaceId']}")
+        print(f"Arrival to:     {bestFittedFlight['outboundLeg']['destinationPlaceId']}")
+        print(f"Departure date: {bestFittedFlight['outboundLeg']['departureDateTime']['year']}-{bestFittedFlight['outboundLeg']['departureDateTime']['month']}-{bestFittedFlight['outboundLeg']['departureDateTime']['day']}")
+        if flightConfig.returnFlight:
+            print(f"Return from:    {bestFittedFlight['inboundLeg']['originPlaceId']}")
+            print(f"Return to:      {bestFittedFlight['inboundLeg']['destinationPlaceId']}")
+            print(f"Return date:    {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}")
         print("========================================================\n")
-        continue
-    elif minPrice > flightConfig.maxPrice:
-        print(f"No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
-    else:
-        print(f"Flight fits the criteria, the price is {minPrice}")
-        sendEmail(bestFittedFlight, flightConfig, searchConfig)
-    
-    print(f"Is direct?:     {bestFittedFlight['isDirect']}")
-    print(f"Departure from: {bestFittedFlight['outboundLeg']['originPlaceId']}")
-    print(f"Arrival to:     {bestFittedFlight['outboundLeg']['destinationPlaceId']}")
-    print(f"Departure date: {bestFittedFlight['outboundLeg']['departureDateTime']['year']}-{bestFittedFlight['outboundLeg']['departureDateTime']['month']}-{bestFittedFlight['outboundLeg']['departureDateTime']['day']}")
-    if flightConfig.returnFlight:
-        print(f"Return from:    {bestFittedFlight['inboundLeg']['originPlaceId']}")
-        print(f"Return to:      {bestFittedFlight['inboundLeg']['destinationPlaceId']}")
-        print(f"Return date:    {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}")
-    print("========================================================\n")
-
+    except Exception as ex:
+        print(ex)
+        print(resp)
