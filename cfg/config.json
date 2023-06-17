@@ -42,7 +42,7 @@
         },
         "WAW_LIS_SEPTEMBER_OCTOBER": {
             "originAirportIATA": "WAW",
-            "destinationAirportEntityID": "LIS",
+            "destinationAirportIATA": "LIS",
             "dateFrom": {
                 "year": 2023,
                 "month": 9,
@@ -77,7 +77,7 @@
         },
         "WAW_LIS_SEPTEMBER_OCTOBER_patrix": {
             "originAirportIATA": "WAW",
-            "destinationAirportEntityID": "LIS",
+            "destinationAirportIATA": "LIS",
             "dateFrom": {
                 "year": 2023,
                 "month": 9,
@@ -112,7 +112,7 @@
         },
         "WMI_LIS_SEPTEMBER_OCTOBER": {
             "originAirportIATA": "WMI",
-            "destinationAirportEntityID": "LIS",
+            "destinationAirportIATA": "LIS",
             "dateFrom": {
                 "year": 2023,
                 "month": 9,
@@ -147,7 +147,7 @@
         },
         "WMI_LIS_SEPTEMBER_OCTOBER_patrix": {
             "originAirportIATA": "WMI",
-            "destinationAirportEntityID": "LIS",
+            "destinationAirportIATA": "LIS",
             "dateFrom": {
                 "year": 2023,
                 "month": 9,
