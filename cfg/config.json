@@ -40,7 +40,7 @@
                 "otherInfo": ""
             }
         },
-        "WAW_LIS_SEPTEMBER_OCTOBER": {
+        "WAW_LIS_SEPTEMBER": {
             "originAirportIATA": "WAW",
             "destinationAirportIATA": "LIS",
             "dateFrom": {
@@ -50,8 +50,8 @@
             }, 
             "dateTo": {
                 "year": 2023,
-                "month": 10,
-                "day": 15
+                "month": 9,
+                "day": 31
             },
             "dateFromReturn": {
                 "year": 2023,
@@ -60,14 +60,14 @@
             }, 
             "dateToReturn": {
                 "year": 2023,
-                "month": 10,
-                "day": 25
+                "month": 9,
+                "day": 31
             },
             "daysMinimum": 5,
             "daysMaximum": 8,
             "onlyDirectFlights": "True",
             "return": "True",
-            "maxPrice": 700,
+            "maxPrice": 600,
             "emailNotification": {
                 "emailAddress": "mp7@interia.eu",
                 "flightFrom": "Warszawa Chopin",
@@ -75,7 +75,7 @@
                 "otherInfo": ""
             }
         },
-        "WAW_LIS_SEPTEMBER_OCTOBER_patrix": {
+        "WAW_LIS_SEPTEMBER_patrix": {
             "originAirportIATA": "WAW",
             "destinationAirportIATA": "LIS",
             "dateFrom": {
@@ -85,8 +85,8 @@
             }, 
             "dateTo": {
                 "year": 2023,
-                "month": 10,
-                "day": 15
+                "month": 9,
+                "day": 31
             },
             "dateFromReturn": {
                 "year": 2023,
@@ -95,14 +95,14 @@
             }, 
             "dateToReturn": {
                 "year": 2023,
-                "month": 10,
-                "day": 25
+                "month": 9,
+                "day": 31
             },
             "daysMinimum": 5,
             "daysMaximum": 8,
             "onlyDirectFlights": "True",
             "return": "True",
-            "maxPrice": 700,
+            "maxPrice": 600,
             "emailNotification": {
                 "emailAddress": "patrix800@gmail.com",
                 "flightFrom": "Warszawa Chopin",
@@ -110,7 +110,7 @@
                 "otherInfo": ""
             }
         },
-        "WMI_LIS_SEPTEMBER_OCTOBER": {
+        "WMI_LIS_SEPTEMBER_MP7": {
             "originAirportIATA": "WMI",
             "destinationAirportIATA": "LIS",
             "dateFrom": {
@@ -120,8 +120,8 @@
             }, 
             "dateTo": {
                 "year": 2023,
-                "month": 10,
-                "day": 15
+                "month": 9,
+                "day": 31
             },
             "dateFromReturn": {
                 "year": 2023,
@@ -130,14 +130,14 @@
             }, 
             "dateToReturn": {
                 "year": 2023,
-                "month": 10,
-                "day": 25
+                "month": 9,
+                "day": 31
             },
             "daysMinimum": 5,
             "daysMaximum": 8,
             "onlyDirectFlights": "True",
             "return": "True",
-            "maxPrice": 700,
+            "maxPrice": 600,
             "emailNotification": {
                 "emailAddress": "mp7@interia.eu",
                 "flightFrom": "Warszawa Modlin",
@@ -145,7 +145,7 @@
                 "otherInfo": ""
             }
         },
-        "WMI_LIS_SEPTEMBER_OCTOBER_patrix": {
+        "WMI_LIS_SEPTEMBER_patrix": {
             "originAirportIATA": "WMI",
             "destinationAirportIATA": "LIS",
             "dateFrom": {
@@ -155,8 +155,8 @@
             }, 
             "dateTo": {
                 "year": 2023,
-                "month": 10,
-                "day": 15
+                "month": 9,
+                "day": 31
             },
             "dateFromReturn": {
                 "year": 2023,
@@ -165,18 +165,158 @@
             }, 
             "dateToReturn": {
                 "year": 2023,
-                "month": 10,
-                "day": 25
+                "month": 9,
+                "day": 31
             },
             "daysMinimum": 5,
             "daysMaximum": 8,
             "onlyDirectFlights": "True",
             "return": "True",
-            "maxPrice": 700,
+            "maxPrice": 600,
             "emailNotification": {
                 "emailAddress": "patrix800@gmail.com",
                 "flightFrom": "Warszawa Modlin",
                 "flightTo": "Lisbon",
+                "otherInfo": ""
+            }
+        },
+        "WMI_MADEIRA_patrix": {
+            "originAirportIATA": "WMI",
+            "destinationAirportIATA": "FNC",
+            "dateFrom": {
+                "year": 2023,
+                "month": 7,
+                "day": 16
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 7,
+                "day": 23
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 24
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 30
+            },
+            "daysMinimum": 7,
+            "daysMaximum": 12,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 900,
+            "emailNotification": {
+                "emailAddress": "patrix800@gmail.com",
+                "flightFrom": "Warszawa Modlin",
+                "flightTo": "Madeira",
+                "otherInfo": ""
+            }
+        },
+        "WMI_MADEIRA_MP7": {
+            "originAirportIATA": "WMI",
+            "destinationAirportIATA": "FNC",
+            "dateFrom": {
+                "year": 2023,
+                "month": 7,
+                "day": 16
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 7,
+                "day": 23
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 24
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 30
+            },
+            "daysMinimum": 7,
+            "daysMaximum": 12,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 900,
+            "emailNotification": {
+                "emailAddress": "mp7@interia.eu",
+                "flightFrom": "Warszawa Modlin",
+                "flightTo": "Madeira",
+                "otherInfo": ""
+            }
+        },
+        "WAW_MADEIRA_patrix": {
+            "originAirportIATA": "WAW",
+            "destinationAirportIATA": "FNC",
+            "dateFrom": {
+                "year": 2023,
+                "month": 7,
+                "day": 16
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 7,
+                "day": 23
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 24
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 30
+            },
+            "daysMinimum": 7,
+            "daysMaximum": 12,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 900,
+            "emailNotification": {
+                "emailAddress": "patrix800@gmail.com",
+                "flightFrom": "Warszawa Modlin",
+                "flightTo": "Madeira",
+                "otherInfo": ""
+            }
+        },
+        "WAW_MADEIRA_MP7": {
+            "originAirportIATA": "WAW",
+            "destinationAirportIATA": "FNC",
+            "dateFrom": {
+                "year": 2023,
+                "month": 7,
+                "day": 16
+            }, 
+            "dateTo": {
+                "year": 2023,
+                "month": 7,
+                "day": 23
+            },
+            "dateFromReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 24
+            }, 
+            "dateToReturn": {
+                "year": 2023,
+                "month": 7,
+                "day": 30
+            },
+            "daysMinimum": 7,
+            "daysMaximum": 12,
+            "onlyDirectFlights": "True",
+            "return": "True",
+            "maxPrice": 900,
+            "emailNotification": {
+                "emailAddress": "mp7@interia.eu",
+                "flightFrom": "Warszawa Modlin",
+                "flightTo": "Madeira",
                 "otherInfo": ""
             }
         }

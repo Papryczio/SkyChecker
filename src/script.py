@@ -75,7 +75,7 @@ def sendEmail(bestFittedFlight, flightConfig, searchConfig):
     body += f"\nDeparture date: {bestFittedFlight['outboundLeg']['departureDateTime']['year']}-{bestFittedFlight['outboundLeg']['departureDateTime']['month']}-{bestFittedFlight['outboundLeg']['departureDateTime']['day']}"
     if flightConfig.returnFlight:
         body += f"\nReturn departure date: {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}"
-    if bestFittedFlight['isDirect'] == "True":
+    if bestFittedFlight['isDirect'] == True:
         body += f"\nThe flight(s) are direct."
     else:
         body += f"\nThe flight(s) are NOT direct!"
