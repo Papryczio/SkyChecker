@@ -10,7 +10,7 @@ from email.message import EmailMessage
 # Skyscanner API config
 URL = "https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search"
 headers = CaseInsensitiveDict()
-headers["x-api-key"] = "prtl6749387986743898559646983194"
+headers["x-api-key"] = "sh428739766321522266746152871799"
 headers["Content-Type"] = "application/x-www-form-urlencoded"
 
 # Getting config file.
@@ -144,6 +144,8 @@ for cfg in config["FlightConfiguration"]:
     try:
         # Executing CuRL.
         resp = requests.post(URL, headers=headers, data=query)
+        if resp.status_code != 200:
+            print("[ERROR] Failed to download flight information.")
         flightsInfo = resp.json()['content']['results']['quotes']
 
         # Get best fitted flight
