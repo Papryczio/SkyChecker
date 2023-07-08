@@ -3,11 +3,14 @@ from requests.structures import CaseInsensitiveDict
 import json
 from datetime import datetime, timedelta
 import os
+import smtplib
+import ssl
+from email.message import EmailMessage
 
+# Skyscanner API config
 URL = "https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search"
-
 headers = CaseInsensitiveDict()
-headers["x-api-key"] = "prtl6749387986743898559646983194"
+headers["x-api-key"] = "sh428739766321522266746152871799"
 headers["Content-Type"] = "application/x-www-form-urlencoded"
 
 # Getting config file.
@@ -17,6 +20,11 @@ config = ""
 with open(CONFIG_FILE_PATH) as file:
     config = json.load(file)
 
+# Configuring email notification service
+EMAIL_SENDER =      os.getenv('GMAIL_ADDRESS')
+EMAIL_PASSWORD =    os.getenv('GMAIL_PASSWORD')
+context = ssl.create_default_context()
+
 # Getting general job configuration.
 class SearchConfiguration: 
     def __init__(self, config):
@@ -25,12 +33,6 @@ class SearchConfiguration:
         self.currency = config.get("currency")
 
 searchConfig = SearchConfiguration(config["SearchConfiguration"])
-print("\n========================================================")
-print("                  JOB CONFIGURATION")
-print(f"Market:     {searchConfig.market}")
-print(f"Locale:     {searchConfig.locale}")
-print(f"Currency:   {searchConfig.currency}")
-print("========================================================\n")
 
 # Getting all configured flights configurations.
 class FlightDate:
@@ -56,110 +58,151 @@ class FlightConfiguration:
         self.returnFlight =                 config.get("return")
         self.maxPrice =                     config.get("maxPrice") or None
 
+class EmailNotificationParams:
+    def __init__(self, config):
+        self.emailAddress = config.get("emailAddress")
+        self.flightFrom = config.get("flightFrom")
+        self.flightTo = config.get("flightTo")
+        self.otherInfo = config.get("otherInfo") or None
+
+def sendEmail(bestFittedFlight, flightConfig, searchConfig):
+
+    emailParams = EmailNotificationParams(config["FlightConfiguration"].get(cfg)["emailNotification"])
+
+    subject = f"[SkyChecker] Found best fitted flight from {emailParams.flightFrom} to {emailParams.flightTo}!"
+
+    body = f"The flight between {emailParams.flightFrom} and {emailParams.flightTo} can now be bought for just {minPrice} {searchConfig.currency}."
+    body += f"\nDeparture date: {bestFittedFlight['outboundLeg']['departureDateTime']['year']}-{bestFittedFlight['outboundLeg']['departureDateTime']['month']}-{bestFittedFlight['outboundLeg']['departureDateTime']['day']}"
+    if flightConfig.returnFlight:
+        body += f"\nReturn departure date: {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}"
+    if bestFittedFlight['isDirect'] == True:
+        body += f"\nThe flight(s) are direct."
+    else:
+        body += f"\nThe flight(s) are NOT direct!"
+    if emailParams.otherInfo is not None:
+        body += f"\n{emailParams.otherInfo}"
+    body += "\n\nBR //BOT"
+
+    em = EmailMessage()
+    em['From'] = EMAIL_SENDER
+    em['To'] = emailParams.emailAddress
+    em['Subject'] = subject
+    em.set_content(body)
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
+        smtp.sendmail(EMAIL_SENDER, emailParams.emailAddress, em.as_string())
+
 for cfg in config["FlightConfiguration"]:
+    print("\n========================================================")
     print(f"Processing flight: {cfg}")
     flightConfig = FlightConfiguration(config["FlightConfiguration"].get(cfg))
 
-    print("\n========================================================")
-    print("                  FLIGHT CONFIGURATION")
-    print(f"Origin Airport IATA:            {flightConfig.originAirportIATA}")
-    print(f"Origin Airport EntityID:        {flightConfig.originAirportEntityID}")
-    print(f"Destination Airport IATA:       {flightConfig.destinationAirportIATA}")
-    print(f"Destination Airport EntityID:   {flightConfig.destinationAirportEntityID}")
-    print(f"Date From:                      {flightConfig.dateFrom}")
-    print(f"Date To:                        {flightConfig.dateTo}")
-    print(f"Date From (Return):             {flightConfig.dateFromReturn}")
-    print(f"Date To (Return):               {flightConfig.dateToReturn}")
-    print(f"Minimum days:                   {flightConfig.daysMinimum}")
-    print(f"Maximum days:                   {flightConfig.daysMaximum}")
-    print(f"Direct flights only?:           {flightConfig.onlyDirectFlights}")
-    print(f"Return flight?:                 {flightConfig.returnFlight}")
-    print("========================================================\n")
+    # Curl command parsing.
+    def pasteAirports(query, isReturn):
+        originEntityID =        flightConfig.originAirportEntityID
+        originIATA =            flightConfig.originAirportIATA
+        destinationEntityID =   flightConfig.destinationAirportEntityID
+        destinationIATA =       flightConfig.destinationAirportIATA
+        if isReturn == True:
+            originEntityID, destinationEntityID =   destinationEntityID, originEntityID
+            originIATA, destinationIATA =           destinationIATA, originIATA
 
-# Curl command parsing.
-def pasteAirports(query, isReturn):
-    originEntityID =        flightConfig.originAirportEntityID
-    originIATA =            flightConfig.originAirportIATA
-    destinationEntityID =   flightConfig.destinationAirportEntityID
-    destinationIATA =       flightConfig.destinationAirportIATA
-    if isReturn == True:
-        originEntityID, destinationEntityID =   destinationEntityID, originEntityID
-        originIATA, destinationIATA =           destinationIATA, originIATA
+        if originEntityID is None and destinationEntityID is None:
+            query += '{"originPlace":{"queryPlace":{"iata":"' + originIATA + '"}},"destinationPlace":{"queryPlace":{"iata":"' + destinationIATA + '"}},'
+        elif originEntityID is not None and destinationEntityID is None:
+            query += '{"originPlace":{"queryPlace":{"entityId":"' + originEntityID + '"}},"destinationPlace":{"queryPlace":{"iata":"' + destinationIATA + '"}},'
+        elif originEntityID is None and destinationEntityID is not None:
+            query += '{"originPlace":{"queryPlace":{"iata":"' + originIATA + '"}},"destinationPlace":{"queryPlace":{"entityId":"' + destinationEntityID + '"}},'
+        else:
+            query += '{"originPlace":{"queryPlace":{"entityId":"' + originEntityID + '"}},"destinationPlace":{"queryPlace":{"entityId":"' + destinationEntityID + '"}},'
+        return query
 
-    if originEntityID is None and destinationEntityID is None:
-        query += '{"originPlace":{"queryPlace":{"iata":"' + originIATA + '"}},"destinationPlace":{"queryPlace":{"iata":"' + destinationIATA + '"}},'
-    elif originEntityID is not None and destinationEntityID is None:
-        query += '{"originPlace":{"queryPlace":{"entityId":"' + originEntityID + '"}},"destinationPlace":{"queryPlace":{"iata":"' + destinationIATA + '"}},'
-    elif originEntityID is None and destinationEntityID is not None:
-        query += '{"originPlace":{"queryPlace":{"iata":"' + originIATA + '"}},"destinationPlace":{"queryPlace":{"entityId":"' + destinationEntityID + '"}},'
-    else:
-        query += '{"originPlace":{"queryPlace":{"entityId":"' + originEntityID + '"}},"destinationPlace":{"queryPlace":{"entityId":"' + destinationEntityID + '"}},'
-    return query
+    def pasteDate(query, isReturn):
+        dayFrom =   str(flightConfig.dateFromReturn.day)    if isReturn else    str(flightConfig.dateFrom.day)
+        dayTo =     str(flightConfig.dateToReturn.day)      if isReturn else    str(flightConfig.dateTo.day)
+        monthFrom = str(flightConfig.dateFromReturn.month)  if isReturn else    str(flightConfig.dateFrom.month)
+        monthTo =   str(flightConfig.dateToReturn.month)    if isReturn else    str(flightConfig.dateTo.month)
+        yearFrom =  str(flightConfig.dateFromReturn.year)   if isReturn else    str(flightConfig.dateFrom.year)
+        yearTo =    str(flightConfig.dateToReturn.year)     if isReturn else    str(flightConfig.dateTo.year)
 
-def pasteDate(query, isReturn):
-    dayFrom =   str(flightConfig.dateFromReturn.day)    if isReturn else    str(flightConfig.dateFrom.day)
-    dayTo =     str(flightConfig.dateToReturn.day)      if isReturn else    str(flightConfig.dateTo.day)
-    monthFrom = str(flightConfig.dateFromReturn.month)  if isReturn else    str(flightConfig.dateFrom.month)
-    monthTo =   str(flightConfig.dateToReturn.month)    if isReturn else    str(flightConfig.dateTo.month)
-    yearFrom =  str(flightConfig.dateFromReturn.year)   if isReturn else    str(flightConfig.dateFrom.year)
-    yearTo =    str(flightConfig.dateToReturn.year)     if isReturn else    str(flightConfig.dateTo.year)
+        query += '"dateRange":{"startDate":{"day":' + dayFrom + ',"month":' + monthFrom + ',"year":' + yearFrom + '},"endDate":{"day":' + dayTo + ',"month":' + monthTo + ',"year":' + yearTo + '}}}'
+        return query
 
-    query += '"dateRange":{"startDate":{"day":' + dayFrom + ',"month":' + monthFrom + ',"year":' + yearFrom + '},"endDate":{"day":' + dayTo + ',"month":' + monthTo + ',"year":' + yearTo + '}}}'
-    return query
-
-query = '{"query":{'
-query += '"market":"' + searchConfig.market + '","locale":"' + searchConfig.locale + '","currency":"' + searchConfig.currency + '","dateTimeGroupingType":"DATE_TIME_GROUPING_TYPE_BY_DATE","queryLegs":['
-query = pasteAirports(query, False)
-query = pasteDate(query, False)
-if flightConfig.returnFlight.lower() == "true":
-    query += ','
-    query = pasteAirports(query, True)
-    query = pasteDate(query, True)
-query += ']}}'
-
-# Executing CuRL.
-resp = requests.post(URL, headers=headers, data=query)
-flightsInfo = resp.json()['content']['results']['quotes']
-
-# Get best fitted flight
-minPrice = 999999999
-bestFittedFlight = ""
-
-for json in flightsInfo:
-    flight = flightsInfo.get(json)
-    # --- Check if flight matches user's criteria. ---
-    # Time delta between outbound and inbound
+    query = '{"query":{'
+    query += '"market":"' + searchConfig.market + '","locale":"' + searchConfig.locale + '","currency":"' + searchConfig.currency + '","dateTimeGroupingType":"DATE_TIME_GROUPING_TYPE_BY_DATE","queryLegs":['
+    query = pasteAirports(query, False)
+    query = pasteDate(query, False)
     if flightConfig.returnFlight.lower() == "true":
-        date = str(flight['outboundLeg']['departureDateTime']['year']) + "-"
-        date += str(flight['outboundLeg']['departureDateTime']['month']) + "-"
-        date += str(flight['outboundLeg']['departureDateTime']['day'])
-        outboundDate = datetime.strptime(date, "%Y-%m-%d")
+        query += ','
+        query = pasteAirports(query, True)
+        query = pasteDate(query, True)
+    query += ']}}'
 
-        date = str(flight['inboundLeg']['departureDateTime']['year']) + "-"
-        date += str(flight['inboundLeg']['departureDateTime']['month']) + "-"
-        date += str(flight['inboundLeg']['departureDateTime']['day'])
-        inboundDate = datetime.strptime(date, "%Y-%m-%d")
+    print(query)
 
-        difference = inboundDate - outboundDate
-        minDays = timedelta(days=flightConfig.daysMinimum)
-        maxDays = timedelta(days=flightConfig.daysMaximum)
+    try:
+        # Executing CuRL.
+        resp = requests.post(URL, headers=headers, data=query)
+        if resp.status_code != 200:
+            print("[ERROR] Failed to download flight information.")
+        flightsInfo = resp.json()['content']['results']['quotes']
 
-        if(difference < minDays or difference > maxDays):
+        # Get best fitted flight
+        minPrice = 999999999
+        bestFittedFlight = ""
+
+        for flightCode in flightsInfo:
+            flight = flightsInfo.get(flightCode)
+
+            # --- Check if flight matches user's criteria. ---
+            # Time delta between outbound and inbound
+            if flightConfig.returnFlight.lower() == "true":
+                date = str(flight['outboundLeg']['departureDateTime']['year']) + "-"
+                date += str(flight['outboundLeg']['departureDateTime']['month']) + "-"
+                date += str(flight['outboundLeg']['departureDateTime']['day'])
+                outboundDate = datetime.strptime(date, "%Y-%m-%d")
+
+                date = str(flight['inboundLeg']['departureDateTime']['year']) + "-"
+                date += str(flight['inboundLeg']['departureDateTime']['month']) + "-"
+                date += str(flight['inboundLeg']['departureDateTime']['day'])
+                inboundDate = datetime.strptime(date, "%Y-%m-%d")
+
+                difference = inboundDate - outboundDate
+                minDays = timedelta(days=flightConfig.daysMinimum)
+                maxDays = timedelta(days=flightConfig.daysMaximum)
+
+                if(difference < minDays or difference > maxDays):
+                    continue
+
+            # Check if the flight is direct or not.
+            if(str(flight['isDirect']).lower() != flightConfig.onlyDirectFlights.lower()):
+                continue
+
+            # --- Check if the flight is cheaper than the cheapest yet found. ---
+            if(int(flight['minPrice']['amount']) < minPrice):
+                bestFittedFlight = flight
+                minPrice = int(flight['minPrice']['amount'])
+                
+        if minPrice == 999999999:
+            print("No flights fitted given criteria.")
+            print("========================================================\n")
             continue
-
-    # Check if the flight is direct or not.
-    if(str(flight['isDirect']).lower() != flightConfig.onlyDirectFlights.lower()):
-        continue
-
-    # --- Check if the flight is cheaper than the cheapest yet found. ---
-    if(int(flight['minPrice']['amount']) < minPrice):
-        bestFittedFlight = flight
-        minPrice = int(flight['minPrice']['amount'])
-
-
-if minPrice == 999999999:
-    print("No flights fitted given criteria.")
-elif minPrice > flightConfig.maxPrice:
-    print(f"No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
-else:
-    print(f"Flight fits the criteria, the price is {minPrice}")
+        elif minPrice > flightConfig.maxPrice:
+            print(f"No flights found in the given price (up to {flightConfig.maxPrice} {searchConfig.currency}). The cheapest flight costs {minPrice} {searchConfig.currency}.")
+        else:
+            print(f"Flight fits the criteria, the price is {minPrice}")
+            sendEmail(bestFittedFlight, flightConfig, searchConfig)
+        
+        print(f"Is direct?:     {bestFittedFlight['isDirect']}")
+        print(f"Departure from: {bestFittedFlight['outboundLeg']['originPlaceId']}")
+        print(f"Arrival to:     {bestFittedFlight['outboundLeg']['destinationPlaceId']}")
+        print(f"Departure date: {bestFittedFlight['outboundLeg']['departureDateTime']['year']}-{bestFittedFlight['outboundLeg']['departureDateTime']['month']}-{bestFittedFlight['outboundLeg']['departureDateTime']['day']}")
+        if flightConfig.returnFlight:
+            print(f"Return from:    {bestFittedFlight['inboundLeg']['originPlaceId']}")
+            print(f"Return to:      {bestFittedFlight['inboundLeg']['destinationPlaceId']}")
+            print(f"Return date:    {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}")
+        print("========================================================\n")
+    except Exception as ex:
+        print(ex)
+        print(resp)
