@@ -33,10 +33,10 @@ uri = "mongodb+srv://skyChecker:" + str(MONGO_PASSWORD) + "@skychecker.qjthns8.m
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
+    print(client.list_database_names())
 except Exception as e:
     print(e)
+    print("dupa")
 
 # Getting general job configuration.
 class SearchConfiguration: 
