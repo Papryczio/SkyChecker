@@ -6,6 +6,8 @@ import os
 import smtplib
 import ssl
 from email.message import EmailMessage
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 # Skyscanner API config
 URL = "https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search"
@@ -24,6 +26,11 @@ with open(CONFIG_FILE_PATH) as file:
 EMAIL_SENDER =      os.getenv('GMAIL_ADDRESS')
 EMAIL_PASSWORD =    os.getenv('GMAIL_PASSWORD')
 context = ssl.create_default_context()
+
+# Configuring database
+MONGO_PASSWORD = os.getenv('MONGO_PASSWORD')
+uri = "mongodb+srv://skyChecker:" + str(MONGO_PASSWORD) + "@skychecker.qjthns8.mongodb.net/?retryWrites=true&w=majority"
+client = MongoClient(uri, server_api=ServerApi('1'))
 
 # Getting general job configuration.
 class SearchConfiguration: 
@@ -203,6 +210,22 @@ for cfg in config["FlightConfiguration"]:
             print(f"Return to:      {bestFittedFlight['inboundLeg']['destinationPlaceId']}")
             print(f"Return date:    {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}")
         print("========================================================\n")
+        try:
+            print(client.list_database_names())
+            db = client.skyChecker
+            print(db.list_collection_names())
+            flightDataDB = db.flightData
+
+            flightInfoDB = {"name": cfg, "from": bestFittedFlight['outboundLeg']['originPlaceId'], "to": bestFittedFlight['outboundLeg']['destinationPlaceId'], "direct": bestFittedFlight['isDirect'], 
+                            "departure": str(bestFittedFlight['outboundLeg']['departureDateTime']['year']) + "-" + str(bestFittedFlight['outboundLeg']['departureDateTime']['month']) + "-" + str(bestFittedFlight['outboundLeg']['departureDateTime']['day']),
+                            "price": minPrice, "checkDate": datetime.now()}
+            if flightConfig.returnFlight:
+                flightInfoDB["return"] = str(bestFittedFlight['inboundLeg']['departureDateTime']['year']) + "-" + str(bestFittedFlight['inboundLeg']['departureDateTime']['month']) + "-" + str(bestFittedFlight['inboundLeg']['departureDateTime']['day'])
+
+            result = flightDataDB.insert_one(flightInfoDB)
+            print(result)
+        except Exception as e:
+            print(e)
     except Exception as ex:
         print(ex)
         print(resp)
