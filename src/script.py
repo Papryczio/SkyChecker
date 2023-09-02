@@ -89,8 +89,6 @@ def insertDates(config, query, isReturn):
     query += '"dateRange":{"startDate":{"day":' + dayFrom + ',"month":' + monthFrom + ',"year":' + yearFrom + '},"endDate":{"day":' + dayTo + ',"month":' + monthTo + ',"year":' + yearTo + '}}}'
     return query
 
-execute()
-
 def getAPIresponse(config, query):
     try:
         response = requests.post(URL, headers=headers, data=query)
@@ -179,14 +177,6 @@ def insertIntoDatabase(config, flight, minPrice):
     except Exception as ex:
         logging.error(ex)
 
-    
-class EmailNotificationParams:
-    def __init__(self, config):
-        self.emailAddress = config.get("emailAddress")
-        self.flightFrom = config.get("flightFrom")
-        self.flightTo = config.get("flightTo")
-        self.otherInfo = config.get("otherInfo") or None
-
 def sendEmail(flight, config, minPrice):
 
     emailAddress = config.get("emailNotification").get("emailAddress")
@@ -215,3 +205,5 @@ def sendEmail(flight, config, minPrice):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
         smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
         smtp.sendmail(EMAIL_SENDER, emailAddress, em.as_string())
+
+execute()
