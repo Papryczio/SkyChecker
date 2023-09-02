@@ -138,8 +138,8 @@ def getAPIresponse(config, query):
             logging.info("No flights fitted given criteria.")
             logging.info("========================================================\n")
             return
-        elif minPrice > config.get("maxPrice"):
-            logging.info(f"No flights found in the given price (up to {config.get('maxPrice')} {CURRENCY}). The cheapest flight costs {minPrice} {CURRENCY}.")
+        elif minPrice > config.get("priceNotification"):
+            logging.info(f"No flights found in the given price (up to {config.get('priceNotification')} {CURRENCY}). The cheapest flight costs {minPrice} {CURRENCY}.")
         else:
             print(f"Flight fits the criteria, the price is {minPrice}")
             sendEmail(bestFittedFlight, config, minPrice)
