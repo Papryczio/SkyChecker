@@ -34,7 +34,6 @@ CURRENCY    = "PLN"
 def execute():
     db = client.skyChecker.Configuration
     for config in db.find():
-        print(config.get("header"))
         lookForFlightOffers(config)
 
 def lookForFlightOffers(config):
@@ -186,7 +185,7 @@ def sendEmail(flight, config, minPrice):
 
     body = f"The flight between \"{config.get('header')}\" can now be bought for just {minPrice} {CURRENCY}."
     body += f"\nDeparture date: {flight['outboundLeg']['departureDateTime']['year']}-{flight['outboundLeg']['departureDateTime']['month']}-{flight['outboundLeg']['departureDateTime']['day']}"
-    if flight.returnFlight:
+    if config.get("return"):
         body += f"\nReturn departure date: {flight['inboundLeg']['departureDateTime']['year']}-{flight['inboundLeg']['departureDateTime']['month']}-{flight['inboundLeg']['departureDateTime']['day']}"
     if flight['isDirect'] == True:
         body += f"\nThe flight(s) are direct."
