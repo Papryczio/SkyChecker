@@ -16,7 +16,11 @@ def main():
         logging.info(f"Processing flight: {config.get('header')}")
         apiQuery = createAPIquery(config)
         response = getAPIresponse(apiQuery)
-        searchForFlightsFittingCriteria(config, response)
+        try:
+            searchForFlightsFittingCriteria(config, response)
+        except Exception as e:
+            logging.warning(e)
+               
 
 # ===================================================
 #                 CONFIGURATION
@@ -109,14 +113,14 @@ def getAPIresponse(query):
     try:
         response = requests.post(URL, headers=headers, data=query)
         if response.status_code != 200:
-            logging.error("Failed to download flight information")
+            logging.warning("Failed to download flight information")
             logging.debug(query)
             logging.debug(response)
         
         return response.json()['content']['results']['quotes']
 
     except Exception as ex:
-        logging.error(ex)
+        logging.warning(ex)
         logging.debug(query)
         logging.debug(response)
 
