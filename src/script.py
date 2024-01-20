@@ -17,7 +17,6 @@ def main():
         logging.info(f"Processing flight: {config.get('header')}")
         apiQuery = createAPIquery(config)
         response = getAPIresponse(apiQuery)
-        print(response)
         try:
             searchForFlightsFittingCriteria(config, response)
         except Exception as e:
@@ -71,16 +70,21 @@ def createAPIquery(config):
     if (config.get("return").lower() == "true"):
         query["query"]["queryLegs"].append(insertFlightInfo(config, 1))
     
+    if (config.get("isFixed").lower() != "true"):
+        query["query"]["dateTimeGroupingType"] = "DATE_TIME_GROUPING_TYPE_BY_MONTH"
+    else:
+        query["query"]["dateTimeGroupingType"] = "DATE_TIME_GROUPING_TYPE_UNSPECIFIED"
+
     return str(json.dumps(query))
 
 def insertFlightInfo(config, isReturn):
     # Airports data
     originIATA =            config.get("originAirportIATA") or None
     destinationIATA =       config.get("destinationAirportIATA") or None
-    
+
     if (isReturn):
         originIATA, destinationIATA = destinationIATA, originIATA
-    
+
     flightInfo = {
         "originPlace": {
             "queryPlace": {
@@ -93,7 +97,7 @@ def insertFlightInfo(config, isReturn):
             }
         }
     }
-    
+
     # Time data
     if (config.get("isFixed") == "True"):
         if (isReturn):
@@ -132,9 +136,9 @@ def insertFlightInfo(config, isReturn):
                 "year"  : str(yearTo)
             }
         }
-    
+
     return flightInfo
-        
+
 def getAPIresponse(query):
     try:
         response = requests.post(URL, headers=headers, data=query)
