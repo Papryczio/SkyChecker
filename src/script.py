@@ -41,7 +41,7 @@ MONGO_PASSWORD      = os.getenv('MONGO_PASSWORD')
 context             = ssl.create_default_context()
 
 # Configuring database
-URI = "mongodb+srv://skyChecker:" + str(MONGO_PASSWORD) + "@skychecker.qjthns8.mongodb.net/?retryWrites=true&w=majority"
+URI = "mongodb+srv://skyCheckerBot:" + str(MONGO_PASSWORD) + "@skychecker.qjthns8.mongodb.net/?retryWrites=true&w=majority"
 CLIENT = MongoClient(URI, server_api=ServerApi('1'))
 
 # Configuration of the currency for flight search
