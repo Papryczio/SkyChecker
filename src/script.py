@@ -8,6 +8,7 @@ from email.message import EmailMessage
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import logging
+import json
 
 def main():
     db = CLIENT.skyChecker.Configuration
@@ -16,12 +17,12 @@ def main():
         logging.info(f"Processing flight: {config.get('header')}")
         apiQuery = createAPIquery(config)
         response = getAPIresponse(apiQuery)
+        print(response)
         try:
             searchForFlightsFittingCriteria(config, response)
         except Exception as e:
             logging.warning(e)
                
-
 # ===================================================
 #                 CONFIGURATION
 # ===================================================
@@ -55,60 +56,85 @@ CURRENCY    = "PLN"
 
 # Curl command parsing.
 def createAPIquery(config):
-    query = '{"query":{'
-    query += '"market":"' + MARKET + '","locale":"' + LOCALE + '","currency":"' + CURRENCY + '"'
-    if (config.get("isFixed") != "True"):
-        query += ',"dateTimeGroupingType":"DATE_TIME_GROUPING_TYPE_BY_DATE"'
-    query += ',"queryLegs":['
-    query = insertAirportsToQuery(config, query, False)
-    query = insertDatesToQuery(config, query, False)
-        
-    if config.get("return").lower() == "true":
-        query += ','
-        query = insertAirportsToQuery(config, query, True)
-        query = insertDatesToQuery(config, query, True)
-        query += ']}}'
-    return query
+    
+    query = {
+        "query": {
+            "market": MARKET,
+            "locale": LOCALE,
+            "currency": CURRENCY,
+            "queryLegs": [
+            ]
+        }
+    }
+    query["query"]["queryLegs"].append(insertFlightInfo(config, 0))
+    
+    if (config.get("return").lower() == "true"):
+        query["query"]["queryLegs"].append(insertFlightInfo(config, 1))
+    
+    return str(json.dumps(query))
 
-def insertAirportsToQuery(config, query, isReturn):
-        originEntityID =        config.get("originAirportEntityID") or None 
-        originIATA =            config.get("originAirportIATA") or None
-        destinationEntityID =   config.get("destinationAirportEntityID") or None
-        destinationIATA =       config.get("destinationAirportIATA") or None
-        if isReturn == True:
-            originEntityID, destinationEntityID =   destinationEntityID, originEntityID
-            originIATA, destinationIATA =           destinationIATA, originIATA
-
-        if originEntityID is None and destinationEntityID is None:
-            query += '{"originPlace":{"queryPlace":{"iata":"' + originIATA + '"}},"destinationPlace":{"queryPlace":{"iata":"' + destinationIATA + '"}},'
-        elif originEntityID is not None and destinationEntityID is None:
-            query += '{"originPlace":{"queryPlace":{"entityId":"' + originEntityID + '"}},"destinationPlace":{"queryPlace":{"iata":"' + destinationIATA + '"}},'
-        elif originEntityID is None and destinationEntityID is not None:
-            query += '{"originPlace":{"queryPlace":{"iata":"' + originIATA + '"}},"destinationPlace":{"queryPlace":{"entityId":"' + destinationEntityID + '"}},'
-        else:
-            query += '{"originPlace":{"queryPlace":{"entityId":"' + originEntityID + '"}},"destinationPlace":{"queryPlace":{"entityId":"' + destinationEntityID + '"}},'
-        
-        return query
-
-def insertDatesToQuery(config, query, isReturn):
+def insertFlightInfo(config, isReturn):
+    # Airports data
+    originIATA =            config.get("originAirportIATA") or None
+    destinationIATA =       config.get("destinationAirportIATA") or None
+    
+    if (isReturn):
+        originIATA, destinationIATA = destinationIATA, originIATA
+    
+    flightInfo = {
+        "originPlace": {
+            "queryPlace": {
+                "iata": originIATA
+            }
+        },
+        "destinationPlace": {
+            "queryPlace": {
+                "iata": destinationIATA
+            }
+        }
+    }
+    
+    # Time data
     if (config.get("isFixed") == "True"):
-        # Fixed dates (can specify days)
-        day =   str(config.get("dateReturn").get("day"))    if isReturn else    str(config["date"]["day"])
-        month = str(config.get("dateReturn").get("month"))  if isReturn else    str(config["date"]["month"])
-        year =  str(config.get("dateReturn").get("year"))   if isReturn else    str(config["date"]["year"])
-
-        query += '"fixedDate":{"day":' + day + ',"month":' + month + ',"year":' + year + '}}'
+        if (isReturn):
+            day     = config["dateReturn"]["day"]
+            month   = config["dateReturn"]["month"]
+            year    = config["dateReturn"]["year"]
+        else:
+            day     = config["date"]["day"]
+            month   = config["date"]["month"]
+            year    = config["date"]["year"]
+            
+        flightInfo["fixedDate"] = {
+            "day"   : str(day),
+            "month" : str(month),
+            "year"  : str(year)
+        }
     else:
-        # Not fixed dated (whole month only, cannot specify days)
-        monthFrom = str(config.get("dateFromReturn").get("month"))  if isReturn else    str(config["dateFrom"]["month"])
-        monthTo =   str(config.get("dateToReturn").get("month"))    if isReturn else    str(config["dateTo"]["month"])
-        yearFrom =  str(config.get("dateFromReturn").get("year"))   if isReturn else    str(config["dateFrom"]["year"])
-        yearTo =    str(config.get("dateToReturn").get("year"))     if isReturn else    str(config["dateTo"]["year"])
-
-        query += '"dateRange":{"startDate":{"month":' + monthFrom + ',"year":' + yearFrom + '},"endDate":{"month":' + monthTo + ',"year":' + yearTo + '}}}'
+        if (isReturn):
+            monthFrom   = config["dateFromReturn"]["month"]
+            monthTo     = config["dateToReturn"]["month"]
+            yearFrom    = config["dateFromReturn"]["year"]
+            yearTo      = config["dateToReturn"]["year"]
+        else:
+            monthFrom   = config["dateFrom"]["month"]
+            monthTo     = config["dateTo"]["month"]
+            yearFrom    = config["dateFrom"]["year"]
+            yearTo      = config["dateTo"]["year"]
         
-    return query
-
+        flightInfo["dateRange"] = {
+            "startDate": {
+                "month" : str(monthFrom),
+                "year"  : str(yearFrom)
+            },
+            "endDate": {
+                "month" : str(monthTo),
+                "year"  : str(yearTo)
+            }
+        }
+    
+    return flightInfo
+        
 def getAPIresponse(query):
     try:
         response = requests.post(URL, headers=headers, data=query)
