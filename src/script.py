@@ -44,11 +44,6 @@ context             = ssl.create_default_context()
 URI = "mongodb+srv://skycheckerbot:" + str(MONGO_PASSWORD) + "@skychecker.zviwh6x.mongodb.net/?retryWrites=true&w=majority"
 CLIENT = MongoClient(URI, server_api=ServerApi('1'))
 
-# Configuration of the currency for flight search
-MARKET      = "PL"
-LOCALE      = "pl-PL"
-CURRENCY    = "PLN"
-
 # ===================================================
 #         FETCHING DATA FROM SKYSCANNER API
 # ===================================================
@@ -58,9 +53,9 @@ def createAPIquery(config):
     
     query = {
         "query": {
-            "market": MARKET,
-            "locale": LOCALE,
-            "currency": CURRENCY,
+            "market": config["locale"]["market"],
+            "locale": config["locale"]["locale"],
+            "currency": config["locale"]["currency"],
             "queryLegs": [
             ]
         }
