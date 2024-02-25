@@ -60,9 +60,17 @@ def createAPIquery(config):
             ]
         }
     }
-    query["query"]["market"] = config["locale"]["market"] or "UK"
-    query["query"]["locale"] = config["locale"]["locale"] or "en-GB"
-    query["query"]["currency"] = config["locale"]["currency"] or "EUR"
+    
+    # If locale ain't configured - pick default one (UK, en-GB, EUR)
+    try:
+        query["query"]["market"] = config["locale"]["market"]
+        query["query"]["locale"] = config["locale"]["locale"]
+        query["query"]["currency"] = config["locale"]["currency"]
+    except:
+        query["query"]["market"] = "UK"
+        query["query"]["locale"] = "en-GB"
+        query["query"]["currency"] = "EUR"
+        
     query["query"]["queryLegs"].append(insertFlightInfo(config, 0))
     
     if (config.get("return").lower() == "true"):
@@ -74,7 +82,6 @@ def createAPIquery(config):
         query["query"]["dateTimeGroupingType"] = "DATE_TIME_GROUPING_TYPE_UNSPECIFIED"
 
     return str(json.dumps(query))
-
 def insertFlightInfo(config, isReturn):
     # Airports data
     originIATA =            config.get("originAirportIATA") or None
