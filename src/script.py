@@ -53,13 +53,16 @@ def createAPIquery(config):
     
     query = {
         "query": {
-            "market": config["locale"]["market"],
-            "locale": config["locale"]["locale"],
-            "currency": config["locale"]["currency"],
+            "market": "",
+            "locale": "",
+            "currency": "",
             "queryLegs": [
             ]
         }
     }
+    query["query"]["market"] = config["locale"]["market"] or "UK"
+    query["query"]["locale"] = config["locale"]["locale"] or "en-GB"
+    query["query"]["currency"] = config["locale"]["currency"] or "EUR"
     query["query"]["queryLegs"].append(insertFlightInfo(config, 0))
     
     if (config.get("return").lower() == "true"):
