@@ -138,9 +138,9 @@ def getAPIresponse(query):
     try:
         response = requests.post(URL, headers=headers, data=query)
         if response.status_code != 200:
-            logging.warning("Failed to download flight information")
-            logging.warning(query)
-            logging.warning(response)
+            logging.warning("Failed to download flight information with response code" + str(response.status_code))
+            logging.warning("Query " + query)
+            logging.warning("Response message" + response)
         
         return response.json()['content']['results']['quotes']
 
