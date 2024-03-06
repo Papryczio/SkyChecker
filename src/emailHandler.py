@@ -25,7 +25,7 @@ def sendEmail(flight, config, minPrice):
     subject = ""
     body    = ""
     
-    if (market == 'pl'):
+    if (market == 'PL'):
         subject = f"[Skychecker] Znaleziono lot - {header}"
         
         if (isReturn):
@@ -47,7 +47,7 @@ def sendEmail(flight, config, minPrice):
         if additionalInfo is not None:
             body += f"\n{additionalInfo}"
     
-    elif (market == "en"):
+    elif (market == "EN"):
         subject = f"[SkyChecker] Found best fitted flight \"{config.get('header')}\"!"
 
         body = f"The flight between \"{config.get('header')}\" can now be bought for just {minPrice} {currency}."
