@@ -5,14 +5,19 @@ import os
 import smtplib
 import ssl
 from email.message import EmailMessage
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+# from pymongo.mongo_client import MongoClient
+# from pymongo.server_api import ServerApi
 import logging
 import json
 
+import databaseHandler
+
 def main():
-    db = CLIENT.skyChecker.Configuration
-    for config in db.find():
+    # db = CLIENT.skyChecker.Configuration
+    allConfigs = databaseHandler.fetchAllConfigs()
+    
+    for config in allConfigs:
+    # for config in db.find():
         logging.info("========================================================")
         logging.info(f"Processing flight: {config.get('header')}")
         apiQuery = createAPIquery(config)
@@ -31,7 +36,7 @@ logging.basicConfig(level=logging.INFO)
 # Skyscanner API config
 URL = "https://partners.api.skyscanner.net/apiservices/v3/flights/indicative/search"
 headers = CaseInsensitiveDict()
-headers["x-api-key"] = "sh428739766321522266746152871799"
+headers["x-api-key"]    = "sh428739766321522266746152871799"
 headers["Content-Type"] = "application/x-www-form-urlencoded"
 
 # Configuring email notification service
@@ -41,8 +46,8 @@ MONGO_PASSWORD      = os.getenv('MONGO_PASSWORD')
 context             = ssl.create_default_context()
 
 # Configuring database
-URI = "mongodb+srv://skycheckerbot:" + str(MONGO_PASSWORD) + "@skychecker.zviwh6x.mongodb.net/?retryWrites=true&w=majority"
-CLIENT = MongoClient(URI, server_api=ServerApi('1'))
+# URI = "mongodb+srv://skycheckerbot:" + str(MONGO_PASSWORD) + "@skychecker.zviwh6x.mongodb.net/?retryWrites=true&w=majority"
+# CLIENT = MongoClient(URI, server_api=ServerApi('1'))
 
 # ===================================================
 #         FETCHING DATA FROM SKYSCANNER API
@@ -82,6 +87,7 @@ def createAPIquery(config):
         query["query"]["dateTimeGroupingType"] = "DATE_TIME_GROUPING_TYPE_UNSPECIFIED"
 
     return str(json.dumps(query))
+
 def insertFlightInfo(config, isReturn):
     # Airports data
     originIATA =            config.get("originAirportIATA") or None
@@ -222,42 +228,43 @@ def searchForFlightsFittingCriteria(config, flightsInfo):
             logging.info(f"Return date:    {bestFittedFlight['inboundLeg']['departureDateTime']['year']}-{bestFittedFlight['inboundLeg']['departureDateTime']['month']}-{bestFittedFlight['inboundLeg']['departureDateTime']['day']}")
         logging.info("========================================================")
             
-        insertIntoDatabase(config, bestFittedFlight, minPrice)
+        #insertIntoDatabase(config, bestFittedFlight, minPrice)
+        databaseHandler.insertFlightData(config, bestFittedFlight, minPrice)
 
 # ===================================================
 #      DATABASE INSERT AND EMAIL NOTIFICATION
 # ===================================================
 
-def insertIntoDatabase(config, flight, minPrice):
-    try:
-        db = CLIENT.skyChecker.flightData
+# def insertIntoDatabase(config, flight, minPrice):
+#     try:
+#         db = CLIENT.skyChecker.flightData
         
-        db_name         = config.get("header")
-        db_from         = flight['outboundLeg']['originPlaceId']
-        db_to           = flight['outboundLeg']['destinationPlaceId']
-        db_direct       = flight['isDirect']
-        db_departure    = str(flight['outboundLeg']['departureDateTime']['year']) + "-" + str(flight['outboundLeg']['departureDateTime']['month']) + "-" + str(flight['outboundLeg']['departureDateTime']['day'])
-        db_price        = minPrice
-        db_checkDate    = datetime.now()
+#         db_name         = config.get("header")
+#         db_from         = flight['outboundLeg']['originPlaceId']
+#         db_to           = flight['outboundLeg']['destinationPlaceId']
+#         db_direct       = flight['isDirect']
+#         db_departure    = str(flight['outboundLeg']['departureDateTime']['year']) + "-" + str(flight['outboundLeg']['departureDateTime']['month']) + "-" + str(flight['outboundLeg']['departureDateTime']['day'])
+#         db_price        = minPrice
+#         db_checkDate    = datetime.now()
 
-        insert = {
-            "name": db_name,
-            "from": db_from,
-            "to": db_to,
-            "direct": db_direct, 
-            "departure": db_departure,
-            "price": db_price,
-            "checkDate": db_checkDate
-        }
+#         insert = {
+#             "name":         db_name,
+#             "from":         db_from,
+#             "to":           db_to,
+#             "direct":       db_direct, 
+#             "departure":    db_departure,
+#             "price":        db_price,
+#             "checkDate":    db_checkDate
+#         }
 
-        if config.get("return"):
-            insert["return"] = str(flight['inboundLeg']['departureDateTime']['year']) + "-" + str(flight['inboundLeg']['departureDateTime']['month']) + "-" + str(flight['inboundLeg']['departureDateTime']['day'])
+#         if config.get("return"):
+#             insert["return"] = str(flight['inboundLeg']['departureDateTime']['year']) + "-" + str(flight['inboundLeg']['departureDateTime']['month']) + "-" + str(flight['inboundLeg']['departureDateTime']['day'])
         
-        result = db.insert_one(insert)
-        logging.debug(result)
+#         result = db.insert_one(insert)
+#         logging.debug(result)
 
-    except Exception as ex:
-        logging.error(ex)
+#     except Exception as ex:
+#         logging.error(ex)
 
 def sendEmail(flight, config, minPrice):
 
