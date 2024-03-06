@@ -40,8 +40,9 @@ def sendEmail(flight, config, minPrice):
             directInfo = "Połączenie zawiera przesiadki"
             
         body = f"""Znaleziono lot - {header} w cenie {minPrice} {currency}
-        Data wylotu: {departureDate}{returnInfo}
-        {directInfo}
+    Data wylotu: {departureDate}
+    {returnInfo}
+    {directInfo}
         """
         
         if additionalInfo is not None:
