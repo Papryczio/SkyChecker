@@ -16,6 +16,13 @@ CLIENT = MongoClient(URI, server_api=ServerApi('1'))
 # ======================
 
 def fetchAllConfigs():
+    """
+    The function fetches all configurations from the skyChecker database collection.
+    :return: The function `fetchAllConfigs()` is attempting to fetch all configurations from a MongoDB
+    collection named "Configuration" under the "skyChecker" database. If successful, it will return all
+    the documents found in that collection. If an exception occurs during the process, the error will be
+    logged using the `logging.error()` function.
+    """
     try:
         db = CLIENT.skyChecker.Configuration
         return db.find()
@@ -23,6 +30,22 @@ def fetchAllConfigs():
         logging.error(e)
 
 def insertFlightData(config, flight, minPrice):
+    """
+    The function `insertFlightData` inserts flight data into a MongoDB database based on the provided
+    configuration, flight details, and minimum price.
+    
+    :param config: Config is a dictionary containing configuration settings for the flight data
+    insertion process. It includes information such as the header for the database, whether to
+    include return flight data, and any other necessary settings for inserting flight data into the
+    database
+    :param flight: The `flight` parameter in the `insertFlightData` function is a dictionary
+    containing flight information. It includes details such as the origin place ID, destination place
+    ID, whether the flight is direct, departure date and time, and possibly inbound leg information if
+    the configuration specifies a return flight
+    :param minPrice: The `minPrice` parameter in the `insertFlightData` function represents the minimum
+    price of the flight being inserted into the database. This value is used to store the price
+    information for the flight in the database record
+    """
     try:
         db = CLIENT.skyChecker.flightData
         
